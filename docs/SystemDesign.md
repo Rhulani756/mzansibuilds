@@ -7,7 +7,7 @@ This document outlines the architectural decisions, domain modeling, and securit
 
 ## 1. System Architecture
 
-![System Architecture Diagram](/mzansibuilds/docs/ArchitecturalDiagram.png)
+![System Architecture Diagram](ArchitecturalDiagram.png)
 
 **Architectural Justification:**
 The MzansiBuilds platform is designed using a Serverless Monolith approach within a Turborepo workspace. By abstracting the Prisma ORM and database connection into a dedicated `@repo/database` package, the system achieves maximum **Efficiency and Reusability**. If the platform scales to include a mobile application or a microservice backend in the future, the core data logic remains centralized and perfectly synchronized across all applications.
@@ -16,7 +16,7 @@ The MzansiBuilds platform is designed using a Serverless Monolith approach withi
 
 ## 2. Domain Model (Business Logic)
 
-![Domain Model Diagram](/mzansibuilds/docs/domain_model.png)
+![Domain Model Diagram](domain_model.png)
 
 **Architectural Justification:**
 The core business logic was mapped utilizing strict Object-Oriented principles.
@@ -27,7 +27,7 @@ The core business logic was mapped utilizing strict Object-Oriented principles.
 
 ## 3. Security & Authentication Flow
 
-![Sequence Diagram](/mzansibuilds/docs/SecureAuthenticationSequenceDiagram.png)
+![Sequence Diagram](SecureAuthenticationSequenceDiagram.png)
 
 **Architectural Justification:**
 Addressing the **Secure By Design** competency, the authentication flow assumes zero trust regarding user input. 
