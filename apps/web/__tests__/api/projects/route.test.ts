@@ -15,7 +15,8 @@ jest.mock('@repo/database', () => ({
 // 2. Mock Next.js's NextResponse to work smoothly in Jest
 jest.mock('next/server', () => ({
   NextResponse: {
-    json: (body: any, init?: any) => {
+    // Replaced 'any' with 'unknown' and 'ResponseInit' to satisfy the strict linter
+    json: (body: unknown, init?: ResponseInit) => {
       return new Response(JSON.stringify(body), {
         status: init?.status || 200,
         headers: { 'Content-Type': 'application/json' },
