@@ -12,10 +12,12 @@
     "test": "jest"
   },
   "dependencies": {
+    "@repo/database": "*",
     "@repo/ui": "*",
     "next": "16.2.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",
@@ -30,6 +32,8 @@
     "jest-environment-jsdom": "^30.3.0",
     "postcss": "^8.5.9",
     "tailwindcss": "^4.2.2",
-    "typescript": "5.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "5.9.2",
+    "whatwg-fetch": "^3.6.20"
   }
 }
