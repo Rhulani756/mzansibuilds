@@ -72,9 +72,9 @@ export default async function LiveFeedPage() {
 
                 {/* Action Footer */}
                 <div className="pt-4 border-t border-gray-100 mt-auto">
-                  <button className="w-full bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 px-4 py-2 rounded-md font-bold transition-colors cursor-pointer border border-green-200">
-                    Raise Hand to Help
-                  </button>
+                  <Link href={`/projects/${project.id}`} className="block w-full text-center bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 px-4 py-2 rounded-md font-bold transition-colors cursor-pointer border border-green-200">
+                    View Project & Discuss
+                  </Link>
                 </div>
               </div>
             ))}

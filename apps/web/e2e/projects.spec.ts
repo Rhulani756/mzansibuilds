@@ -2,61 +2,49 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Project Creation Flow', () => {
 
-  // This runs BEFORE every single test in this block
   test.beforeEach(async ({ page }) => {
-    // 1. Go to the login page
     await page.goto('/login');
     
-    // 2. Log in using standard credentials
-    // IMPORTANT: Make sure this user actually exists in your local Supabase database!
-    // You can register it manually through your app once if you haven't already.
+    // Using your standard test credentials
     await page.locator('input[name="email"]').fill('test@example.com'); 
     await page.locator('input[name="password"]').fill('password123'); 
     await page.locator('button:has-text("Log In")').click();
 
-    // 3. Wait for the redirect to the dashboard to confirm the auth cookie is set
+    // Confirm we are in
     await page.waitForURL('**/dashboard*');
   });
 
-  test('successfully fills and submits the new project form', async ({ page }) => {
-    // 1. Intercept the API to prevent spamming your real database during tests
-    await page.route('/api/projects', async (route) => {
-      const payload = route.request().postDataJSON();
-      expect(payload.stage).toBe('PROTOTYPING');
-      expect(payload.supportRequired).toBe('Looking for code review.');
-
-      await route.fulfill({
-        status: 201,
-        contentType: 'application/json',
-        json: { success: true, message: 'Project created successfully' },
-      });
-    });
-
-    // 2. Navigate to the page (Now it will work because the bot has an auth cookie!)
+  test('successfully creates a project and redirects to dashboard', async ({ page }) => {
     await page.goto('/projects/new');
 
-    // 3. Fill standard inputs
-    await page.getByLabel(/Project Name/i).fill('MzansiBuilds Analytics');
-    await page.getByLabel(/Description/i).fill('A dashboard for tracking project milestones over time.');
+    const uniqueTitle = `Analytics Tool ${Date.now()}`;
+
+    // Fill the form
+    await page.getByLabel(/Project Name/i).fill(uniqueTitle);
+    await page.getByLabel(/Description/i).fill('Testing the real database integration.');
     
-    // 4. Fill the newly added fields
+    // Match these to your Stage enum exactly
     await page.getByLabel(/Current Stage/i).selectOption('PROTOTYPING');
     await page.getByLabel(/Support Required/i).fill('Looking for code review.');
 
-    // 5. Submit form
-    await page.getByRole('button', { name: 'Publish Project' }).click();
+    // Trigger the Server Action
+    await page.getByRole('button', { name: /Publish Project/i }).click();
 
-    // 6. Assert redirect goes to the dashboard because the user IS authenticated
-    await page.waitForURL('**/dashboard?message=*');
-    expect(page.url()).toContain('message=Project%20Created%20Successfully');
+    // Verify redirect with the success message in the URL
+    await page.waitForURL(url => url.searchParams.has('message'));
+    expect(page.url()).toContain('Project%20Created%20Successfully');
+
+    // FINAL BOSS CHECK: Verify it actually appears on the Dashboard UI
+    await expect(page.locator('h3')).toContainText(uniqueTitle);
   });
 
   test('form validation prevents submission with missing required fields', async ({ page }) => {
-    // The bot is already logged in here due to beforeEach
     await page.goto('/projects/new');
     
-    await page.getByRole('button', { name: 'Publish Project' }).click();
+    // Try to submit empty
+    await page.getByRole('button', { name: /Publish Project/i }).click();
     
+    // Check browser-native validation on the title input
     const titleInput = page.getByLabel(/Project Name/i);
     const isValid = await titleInput.evaluate((node: HTMLInputElement) => node.checkValidity());
     
