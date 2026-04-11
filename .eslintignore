@@ -1,0 +1,16 @@
+# Dependency directories
+node_modules/
+
+# Next.js build output
+.next/
+out/
+build/
+
+# Testing reports
+coverage/
+playwright-report/
+test-results/
+
+# Config files
+*.config.js
+*.config.ts

@@ -3,24 +3,47 @@ import 'whatwg-fetch';
 import { POST } from '../../../app/api/projects/route';
 import { prisma } from '@repo/database';
 
-// 1. Mock the entire database package so we don't hit Supabase
+
+// 1. Mock NextResponse to return a plain object instead of a complex Edge Response
+jest.mock('next/server', () => {
+  return {
+    NextResponse: {
+      json: jest.fn((body, init) => {
+        return {
+          status: init?.status || 200,
+          json: async () => body,
+        };
+      }),
+    },
+  };
+});
+
+// 2. Mock next/headers
+jest.mock('next/headers', () => ({
+  cookies: jest.fn(() => ({
+    get: jest.fn(),
+    set: jest.fn(),
+    getAll: jest.fn(() => []),
+  })),
+}));
+
+// 3. Mock Supabase Server Client
+jest.mock('@/utils/supabase/server', () => ({
+  createClient: jest.fn(() => ({
+    auth: {
+      getUser: jest.fn(() => Promise.resolve({ 
+        data: { user: { id: 'test-user-123' } }, 
+        error: null 
+      })),
+    },
+  })),
+}));
+
+// 4. Mock the Database (ensure this path matches your setup)
 jest.mock('@repo/database', () => ({
   prisma: {
     project: {
-      create: jest.fn(),
-    },
-  },
-}));
-
-// 2. Mock Next.js's NextResponse to work smoothly in Jest
-jest.mock('next/server', () => ({
-  NextResponse: {
-    // Replaced 'any' with 'unknown' and 'ResponseInit' to satisfy the strict linter
-    json: (body: unknown, init?: ResponseInit) => {
-      return new Response(JSON.stringify(body), {
-        status: init?.status || 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      create: jest.fn().mockResolvedValue({ id: 'test-123', title: 'Test Project' }),
     },
   },
 }));
