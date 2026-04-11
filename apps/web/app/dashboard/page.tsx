@@ -140,10 +140,12 @@ export default async function DashboardPage(props: {
                 )}
 
                 <div className="flex items-center justify-between text-sm text-gray-500 border-t border-gray-100 pt-4 mt-auto">
-                  <span>{new Date(project.createdAt).toLocaleDateString()}</span>
-                  <button className="text-gray-900 font-bold hover:text-green-600 transition-colors cursor-pointer">
+                  <Link 
+                      href={`/dashboard/manage/${project.id}`}
+                      className="text-gray-900 font-bold hover:text-green-600 transition-colors cursor-pointer"
+                    >
                     Manage Updates →
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}
