@@ -33,6 +33,45 @@ test.describe('Project Creation Flow', () => {
     await expect(page.getByText(milestoneUpdate)).toBeVisible({ timeout: 10000 });
 });
 
+test('completing a project automatically adds it to the Celebration Wall', async ({ page }) => {
+    // 1. Create a unique test project
+    const uniqueTitle = `Gold Medal Build ${Date.now()}`;
+    await page.goto('/projects/new');
+    await page.getByLabel(/Project Name/i).fill(uniqueTitle);
+    await page.getByLabel(/Description/i).fill('Destined for the Celebration Wall.');
+    await page.getByLabel(/Current Stage/i).selectOption('DEVELOPMENT');
+    await page.getByRole('button', { name: /Publish Project/i }).click();
+    
+    // Wait for redirect to dashboard
+    await page.waitForURL('**/dashboard*');
+
+    // 2. Navigate to the Command Center for THIS specific project
+    // We filter the project cards to find the one with our unique title, then click its specific link
+    const projectCard = page.locator('.bg-white.rounded-xl', { hasText: uniqueTitle });
+    await projectCard.getByRole('link', { name: /Manage Updates/i }).click();
+
+    await page.locator('select[name="stage"]').selectOption('COMPLETED');
+    
+    // Use Promise.all to click the button AND wait for the background request to finish
+    await Promise.all([
+      page.waitForResponse(response => response.request().method() === 'POST'),
+      page.getByRole('button', { name: /Update Stage/i }).click()
+    ]);
+
+    // 4. Navigate to the Celebration Wall
+    await page.goto('/wall');
+
+    // 4. Navigate to the Celebration Wall
+    // You can also use page.getByRole('link', { name: /Celebration Wall/i }).click() if you prefer clicking the nav!
+    await page.goto('/wall');
+
+    // 5. THE FINAL CHECK: Verify our project made it to the Hall of Fame
+    const winningProject = page.getByRole('heading', { name: uniqueTitle });
+    
+    // We give it a generous timeout just in case Next.js caching takes a second to revalidate
+    await expect(winningProject).toBeVisible({ timeout: 10000 });
+  });
+
   test('successfully creates a project and verifies it on the dashboard', async ({ page }) => {
     await page.goto('/projects/new');
 

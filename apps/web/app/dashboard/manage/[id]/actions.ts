@@ -33,6 +33,7 @@ export async function addManagementMilestone(formData: FormData) {
 
   revalidatePath(`/dashboard/manage/${projectId}`);
   revalidatePath(`/projects/${projectId}`); // Update public feed too!
+  revalidatePath('/wall');
 }
 
 export async function updateProjectStage(formData: FormData) {
