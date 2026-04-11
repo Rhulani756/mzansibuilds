@@ -2,14 +2,14 @@
   "name": "mzansibuilds",
   "private": true,
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types",
-    "db:push": "turbo run db:push",
-    "db:generate": "turbo run db:generate"
-  },
+  "build": "turbo run build",
+  "dev": "turbo run dev",
+  "lint": "turbo run lint -- --ignore-pattern \"playwright-report/\" --ignore-pattern \".next/\" --ignore-pattern \"jest.setup.ts\"",
+  "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+  "check-types": "turbo run check-types",
+  "db:push": "turbo run db:push",
+  "db:generate": "turbo run db:generate"
+ },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

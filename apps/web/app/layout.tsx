@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Header from "../components/Header";
 import "./globals.css";
+import Header from "../components/Header";
+import Footer from "../components/Footer"; // Import the new Footer
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "MzansiBuilds | Build in Public",
-  description: "Derivco Code Skills Challenge submission",
+  title: "MzansiBuilds | Derivco Code Skills Challenge",
+  description: "Track your milestones, collaborate with peers, and earn your spot on the Celebration Wall.",
 };
 
 export default function RootLayout({
@@ -17,20 +18,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-h-screen flex flex-col bg-mzansi-light text-mzansi-dark`}>
-        
+      {/* flex & min-h-screen ensure the footer gets pushed to the absolute bottom */}
+      <body className={`${inter.className} bg-white text-gray-900 antialiased min-h-screen flex flex-col`}>
         <Header />
-
-        {/* Dynamic Page Content */}
-        <main className="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Main Content Area */}
+        <main className="flex-1">
           {children}
         </main>
 
-        {/* Simple Footer */}
-        <footer className="bg-mzansi-dark text-gray-400 py-6 text-center text-sm border-t border-gray-800">
-          <p>Built for the Derivco Code Skills Challenge.</p>
-        </footer>
-
+        {/* The New Footer */}
+        <Footer />
       </body>
     </html>
   );
