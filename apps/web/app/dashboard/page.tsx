@@ -1,5 +1,4 @@
 import { createClient } from '../../utils/supabase/server';
-// Make sure this import matches your actual database package setup
 import { prisma } from '@repo/database'; 
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -28,7 +27,7 @@ export default async function DashboardPage(props: {
     <div className="min-h-[calc(100vh-96px)] bg-gray-50 p-6 md:p-12">
       <div className="max-w-7xl mx-auto">
         
-        {/* Success Message Banner (Catches the redirect from the form) */}
+        {/* Success Message Banner */}
         {searchParams?.message && (
           <div className="mb-8 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center gap-3 animate-in fade-in slide-in-from-top-4">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -60,8 +59,9 @@ export default async function DashboardPage(props: {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
             </div>
+            {/* LINT FIX: Escaped apostrophe in It's and haven't */}
             <h3 className="text-xl font-bold text-gray-900 mb-2">No projects yet</h3>
-            <p className="text-gray-500 mb-6 max-w-md mx-auto">You haven't launched any projects. Start building to see your progress tracked here.</p>
+            <p className="text-gray-500 mb-6 max-w-md mx-auto">You haven&apos;t launched any projects. Start building to see your progress tracked here.</p>
             <Link 
               href="/projects/new"
               className="inline-flex bg-green-500 text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-green-400 transition-all shadow-lg shadow-green-500/30 cursor-pointer"
@@ -73,22 +73,25 @@ export default async function DashboardPage(props: {
           /* Populated Grid */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-              <div key={project.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow group">
+              <div key={project.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow group flex flex-col">
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-lg font-bold text-gray-900 group-hover:text-green-600 transition-colors">
                     {project.title}
                   </h3>
-                  <span className="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-0.5 rounded border border-green-200">
-                    Active
+                  {/* DYNAMIC STAGE BADGE */}
+                  <span className="bg-gray-100 text-gray-800 text-xs font-extrabold px-2.5 py-0.5 rounded border border-gray-200 uppercase tracking-wider">
+                    {project.stage}
                   </span>
                 </div>
-                <p className="text-gray-600 text-sm mb-6 line-clamp-3">
+                
+                <p className="text-gray-600 text-sm mb-6 line-clamp-3 grow">
                   {project.description}
                 </p>
-                <div className="flex items-center justify-between text-sm text-gray-500 border-t border-gray-100 pt-4">
+
+                <div className="flex items-center justify-between text-sm text-gray-500 border-t border-gray-100 pt-4 mt-auto">
                   <span>{new Date(project.createdAt).toLocaleDateString()}</span>
                   <button className="text-gray-900 font-bold hover:text-green-600 transition-colors cursor-pointer">
-                    View Details →
+                    Manage Updates →
                   </button>
                 </div>
               </div>

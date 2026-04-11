@@ -17,13 +17,14 @@ export default function NewProjectPage() {
     const formData = new FormData(event.currentTarget);
     const title = formData.get('title') as string;
     const description = formData.get('description') as string;
+    const stage = formData.get('stage') as string;
+    const supportRequired = formData.get('supportRequired') as string;
 
     try {
-      // Calling the API route we rigorously tested earlier!
       const res = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description }),
+        body: JSON.stringify({ title, description, stage, supportRequired }),
       });
 
       const data = await res.json();
@@ -32,12 +33,15 @@ export default function NewProjectPage() {
         throw new Error(data.message || 'Failed to create project');
       }
 
-      // Success! Redirect to the dashboard or live feed
       router.push('/dashboard?message=Project Created Successfully');
       
-    } catch (err: any) {
+    } catch (err) {
+    if (err instanceof Error) {
       setError(err.message);
-    } finally {
+    } else {
+      setError('An unexpected error occurred');
+    }
+    }finally {
       setIsLoading(false);
     }
   }
@@ -45,7 +49,6 @@ export default function NewProjectPage() {
   return (
     <div className="relative min-h-[calc(100vh-96px)] flex items-center justify-center p-6 overflow-hidden bg-white">
       
-      {/* Background Elements */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[32px_32px]"></div>
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-160 h-160 bg-green-400/10 rounded-full blur-[120px] pointer-events-none"></div>
 
@@ -102,7 +105,43 @@ export default function NewProjectPage() {
               <p className="text-xs text-gray-400 mt-2 text-right">Max 500 characters</p>
             </div>
 
-            {/* Error State */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Project Stage Dropdown */}
+              <div>
+                <label htmlFor="stage" className="block text-sm font-bold text-gray-700 mb-1.5">
+                  Current Stage <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="stage"
+                  name="stage"
+                  required
+                  disabled={isLoading}
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all text-black cursor-pointer disabled:opacity-50"
+                >
+                  <option value="IDEATION">Ideation (Planning)</option>
+                  <option value="PROTOTYPING">Prototyping</option>
+                  <option value="DEVELOPMENT">Active Development</option>
+                  <option value="COMPLETED">Completed</option>
+                </select>
+              </div>
+
+              {/* Support Required Section */}
+              <div>
+                <label htmlFor="supportRequired" className="block text-sm font-bold text-gray-700 mb-1.5">
+                  Support Required <span className="text-gray-400 font-normal">(Optional)</span>
+                </label>
+                <input
+                  id="supportRequired"
+                  name="supportRequired"
+                  type="text"
+                  maxLength={100}
+                  disabled={isLoading}
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all text-black disabled:opacity-50"
+                  placeholder="e.g., UI Designer, Code Review..."
+                />
+              </div>
+            </div>
+
             {error && (
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -113,13 +152,12 @@ export default function NewProjectPage() {
               </motion.div>
             )}
 
-            {/* Action Buttons */}
             <div className="flex gap-4 pt-4 border-t border-gray-100">
               <button
                 type="button"
                 onClick={() => router.back()}
                 disabled={isLoading}
-                className="w-full sm:w-auto px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-lg font-bold hover:bg-gray-50 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+                className="w-full sm:w-auto px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-lg font-bold hover:bg-gray-50 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 cursor-pointer disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
@@ -127,7 +165,7 @@ export default function NewProjectPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 bg-green-500 text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-green-400 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-green-500/30 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 disabled:hover:scale-100"
+                className="flex-1 bg-green-500 text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-green-400 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-green-500/30 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 disabled:hover:scale-100 cursor-pointer"
               >
                 {isLoading ? (
                   <>

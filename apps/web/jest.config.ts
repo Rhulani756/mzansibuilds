@@ -16,6 +16,18 @@ const config: Config = {
     '<rootDir>/e2e/' 
   ],
 
+  collectCoverageFrom: [
+    'app/**/*.{js,jsx,ts,tsx}',
+    'components/**/*.{js,jsx,ts,tsx}',
+    'utils/**/*.{js,jsx,ts,tsx}',
+    '!**/*.d.ts',
+    '!**/node_modules/**',
+    '!<rootDir>/.next/**',
+    '!<rootDir>/*.config.ts',
+    '!<rootDir>/coverage/**',
+  ],
+  coverageDirectory: 'coverage',
+
   // FIX IS HERE:
   moduleNameMapper: {
     // This tells Jest: "If you see @/something, look in the apps/web directory"
