@@ -18,7 +18,7 @@ export async function login(formData: FormData) {
   if (error) {
     // In a production app, you'd return this error to the UI. 
     // For now, we will redirect back with an error flag.
-    redirect('/login?message=Could not authenticate user')
+    return redirect(`/login?message=${error.message}`);
   }
 
   revalidatePath('/', 'layout')
@@ -36,7 +36,7 @@ export async function signup(formData: FormData) {
   const { error } = await supabase.auth.signUp(data)
 
   if (error) {
-    redirect('/login?message=Could not create user')
+    return redirect(`/login?message=${error.message}`);
   }
 
   revalidatePath('/', 'layout')
