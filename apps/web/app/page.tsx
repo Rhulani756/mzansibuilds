@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
@@ -39,21 +39,6 @@ function useTypewriter(words: string[], speed = 70, pause = 1800) {
   }, [displayed, deleting, wordIdx, words, speed, pause]);
 
   return displayed;
-}
-
-/* ── Animated counter ── */
-function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
-  const count = useMotionValue(0);
-  const rounded = useTransform(count, v => Math.round(v).toLocaleString());
-  const [val, setVal] = useState('0');
-
-  useEffect(() => {
-    const unsub = rounded.on('change', setVal);
-    const ctrl = animate(count, to, { duration: 2, ease: 'easeOut' });
-    return () => { ctrl.stop(); unsub(); };
-  }, [to, count, rounded]);
-
-  return <span>{val}{suffix}</span>;
 }
 
 const WORDS = ['milestones', 'features', 'MVPs', 'side projects', 'solutions'];
@@ -566,7 +551,7 @@ export default function LandingPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <p className="lp-section-label">// What you get</p>
+            <p className="lp-section-label">{"// What you get"}</p>
             <h2 className="lp-section-title">Everything you need to ship.</h2>
             <p className="lp-section-sub">
               From first commit to celebration — MzansiBuilds gives you the tools to build in public and make your work visible.

@@ -1,10 +1,24 @@
 import { PrismaClient } from '@prisma/client';
 
-// This prevents Next.js from creating too many database connections in development
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+// 1. Create a factory function for the Prisma Client
+const prismaClientSingleton = () => {
+  return new PrismaClient();
+};
 
-export const prisma = globalForPrisma.prisma || new PrismaClient();
+// 2. Extract the exact type from the factory
+type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+// 3. Strongly type the global object
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClientSingleton | undefined;
+};
+
+// 4. Instantiate or reuse the Singleton
+export const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
+
+// 5. Cache it in development to survive hot-reloads
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma;
+}
 
 export * from '@prisma/client';

@@ -2,13 +2,12 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Authentication Flow', () => {
   
-  test('unauthenticated user is redirected from dashboard to landing page', async ({ page }) => {
+  test('unauthenticated user is redirected from dashboard to login page', async ({ page }) => {
     // Try to access protected route
     await page.goto('/dashboard');
     
-    // Expect to be kicked back to the landing page (per our middleware logic)
-    await expect(page).toHaveURL('/');
-    await expect(page.locator('h1')).toContainText('Build in Public.');
+    // Expect to be kicked back to the login page (per our middleware logic)
+    await expect(page).toHaveURL('/login');
   });
 
   test('navigation to login page works', async ({ page }) => {

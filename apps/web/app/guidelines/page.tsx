@@ -20,7 +20,7 @@ export default function GuidelinesPage() {
 
           <div className="p-6 bg-gray-50 rounded-xl border border-gray-100">
             <h3 className="text-lg font-bold text-gray-900 mb-2">🤝 Collaborative Spirit</h3>
-            <p className="text-gray-600 text-sm">When you "Raise a Hand," explain briefly why you want to help. Be constructive in the comments.</p>
+            <p className="text-gray-600 text-sm">When you &quot;Raise a Hand,&quot; explain briefly why you want to help. Be constructive in the comments.</p>
           </div>
 
           <div className="p-6 bg-gray-50 rounded-xl border border-gray-100">
