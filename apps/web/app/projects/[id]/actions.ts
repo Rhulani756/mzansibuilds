@@ -23,9 +23,9 @@ export async function postComment(formData: FormData) {
 
   await prisma.comment.create({
     data: {
-      content: validatedData.content, // Matched to your schema!
+      content: validatedData.content,
       projectId: validatedData.projectId,
-      userId: user.id,
+      userId: user.id, // ✅ Properly linked
     }
   });
 
@@ -60,6 +60,36 @@ export async function raiseHand(formData: FormData) {
       userId: user.id,
       status: 'PENDING',
     }
+  });
+
+  revalidatePath(`/projects/${projectId}`);
+}
+
+export async function addMilestone(formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Unauthorized");
+
+  const projectId = formData.get('projectId') as string;
+  const content = formData.get('content') as string;
+
+  // Security Check: Ensure the user actually owns this project
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { userId: true }
+  });
+
+  if (!project || project.userId !== user.id) {
+    throw new Error("You can only update your own projects.");
+  }
+
+  await prisma.milestone.create({
+    data: {
+      content,
+      projectId,
+      userId: user.id, // 🚀 ADDED: This fixes the Milestone Test timeout!
+    },
   });
 
   revalidatePath(`/projects/${projectId}`);

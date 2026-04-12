@@ -5,9 +5,9 @@ import Link from 'next/link';
 export const dynamic = 'force-dynamic';
 
 export default async function LiveFeedPage() {
-  // Fetch all projects, including the user ID so we know who owns it
-  // In a real app, you'd join this with a User profile table to get their name/avatar
+  // Fetch all projects, including the user profile
   const projects = await prisma.project.findMany({
+    include: { user: true }, // 🚀 Pulls the user profile
     orderBy: { createdAt: 'desc' },
   });
 
@@ -58,6 +58,17 @@ export default async function LiveFeedPage() {
                 <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
                   {project.title}
                 </h3>
+
+                {/* NEW: User Identity Block */}
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-6 h-6 rounded-full bg-gray-900 flex items-center justify-center text-white text-[10px] font-bold uppercase shadow-sm group-hover:bg-green-500 transition-colors">
+                    {project.user.username.charAt(0)}
+                  </div>
+                  <span className="text-xs font-bold text-gray-600 tracking-tight">
+                    @{project.user.username}
+                  </span>
+                </div>
+
                 <p className="text-gray-600 text-sm mb-6 grow line-clamp-3">
                   {project.description}
                 </p>

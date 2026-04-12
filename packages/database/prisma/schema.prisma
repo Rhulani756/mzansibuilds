@@ -8,50 +8,73 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Project {
-  id              String   @id @default(cuid())
-  title           String
-  description     String   @db.Text
-  stage           Stage    @default(IDEATION)
-  supportRequired String?  @db.Text // Requirement: "support required"
-  isCompleted     Boolean  @default(false) // Requirement: "Celebration Wall" trigger
-  
-  // Relations
-  userId          String   
-  milestones      Milestone[]
-  comments        Comment[]
-  collabRequests  CollaborationRequest[]
+model User {
+  id        String  @id // This will exactly match the Supabase Auth User ID
+  email     String  @unique
+  username  String  @unique
+  bio       String? @db.Text
+  avatarUrl String?
+  githubUrl String?
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  // Relationships
+  projects       Project[]
+  comments       Comment[]
+  collabRequests CollaborationRequest[]
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Milestone Milestone[]
+}
+
+model Project {
+  id              String  @id @default(cuid())
+  title           String
+  description     String  @db.Text
+  stage           Stage   @default(IDEATION)
+  supportRequired String? @db.Text // Requirement: "support required"
+  isCompleted     Boolean @default(false) // Requirement: "Celebration Wall" trigger
+
+  // Relations
+  userId         String
+  user           User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  milestones     Milestone[]
+  comments       Comment[]
+  collabRequests CollaborationRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
 }
 
 model Milestone {
-  id          String   @id @default(cuid())
-  content     String   @db.Text
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
 }
 
 model Comment {
-  id          String   @id @default(cuid())
-  content     String   @db.Text
-  userId      String   // Who made the comment
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }
 
 model CollaborationRequest {
-  id          String   @id @default(cuid())
-  userId      String   // Who is "raising their hand"
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  status      RequestStatus @default(PENDING)
-  createdAt   DateTime @default(now())
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  status    RequestStatus @default(PENDING)
+  createdAt DateTime      @default(now())
 }
 
 enum Stage {

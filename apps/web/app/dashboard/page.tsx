@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 // ADDED: Import the server action
 import { handleCollaborationRequest } from './actions';
+import { ensureUserProfile } from '../../utils/profile';
 
 export default async function DashboardPage(props: {
   searchParams: Promise<{ message?: string }>;
@@ -18,6 +19,7 @@ export default async function DashboardPage(props: {
   if (error || !user) {
     redirect('/login');
   }
+  await ensureUserProfile(); // Ensure the user has a profile in our database
 
   // 2. Fetch only the projects belonging to this user
   const projects = await prisma.project.findMany({
@@ -140,10 +142,12 @@ export default async function DashboardPage(props: {
                 )}
 
                 <div className="flex items-center justify-between text-sm text-gray-500 border-t border-gray-100 pt-4 mt-auto">
-                  <span>{new Date(project.createdAt).toLocaleDateString()}</span>
-                  <button className="text-gray-900 font-bold hover:text-green-600 transition-colors cursor-pointer">
+                  <Link 
+                      href={`/dashboard/manage/${project.id}`}
+                      className="text-gray-900 font-bold hover:text-green-600 transition-colors cursor-pointer"
+                    >
                     Manage Updates →
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}

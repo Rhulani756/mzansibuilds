@@ -2,15 +2,13 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@repo/database'; 
 import { z } from 'zod';
 import { createClient } from '../../../utils/supabase/server';
+// 1. Import the revalidation utility
+import { revalidatePath } from 'next/cache';
 
-/**
- * Zod Schema for Secure Payload Validation
- */
 const createProjectSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters long."),
   description: z.string().min(10, "Description must be at least 10 characters long."),
   stage: z.enum(['IDEATION', 'PROTOTYPING', 'DEVELOPMENT', 'COMPLETED']).default('IDEATION'),
-  // ADDED: Make sure we explicitly allow and validate the new support field
   supportRequired: z.string().max(100).optional(), 
 });
 
@@ -21,26 +19,28 @@ export async function POST(request: Request) {
 
     if (authError || !user) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized: You must be logged in to create a project." }, 
+        { success: false, message: "Unauthorized" }, 
         { status: 401 }
       );
     }
 
     const body = await request.json();
-    
-    // Validate incoming data
     const validatedData = createProjectSchema.parse(body);
 
-    // Persist to Supabase PostgreSQL via Prisma
     const newProject = await prisma.project.create({
       data: {
         title: validatedData.title,
         description: validatedData.description,
         stage: validatedData.stage,
-        supportRequired: validatedData.supportRequired, // ADDED: Send it to the database!
+        supportRequired: validatedData.supportRequired,
         userId: user.id, 
       }
     });
+
+    // 🚀 2. CRITICAL: Bust the cache for the pages that display this data
+    // This is what makes your Playwright test pass!
+    revalidatePath('/dashboard');
+    revalidatePath('/feed');
 
     return NextResponse.json(
       { success: true, message: "Project created successfully", data: newProject },

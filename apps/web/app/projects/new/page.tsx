@@ -33,15 +33,15 @@ export default function NewProjectPage() {
         throw new Error(data.message || 'Failed to create project');
       }
 
-      router.push('/dashboard?message=Project Created Successfully');
+      window.location.href = '/dashboard?message=Project+Created+Successfully';
       
     } catch (err) {
-    if (err instanceof Error) {
-      setError(err.message);
-    } else {
-      setError('An unexpected error occurred');
-    }
-    }finally {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
+    } finally {
       setIsLoading(false);
     }
   }
