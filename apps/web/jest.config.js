@@ -1,11 +1,11 @@
-import type { Config } from 'jest';
-import nextJest from 'next/jest.js';
+const nextJest = require('next/jest');
 
+/** @type {import('jest').Config} */
 const createJestConfig = nextJest({
   dir: './',
 });
 
-const config: Config = {
+const config = {
   coverageProvider: 'v8',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testEnvironment: 'jsdom',
@@ -28,12 +28,12 @@ const config: Config = {
   ],
   coverageDirectory: 'coverage',
 
-  // FIX IS HERE:
   moduleNameMapper: {
-    // This tells Jest: "If you see @/something, look in the apps/web directory"
+    // Standard Next.js alias
     '^@/(.*)$': '<rootDir>/$1',
+    // Your Turborepo package mapping
     '^@repo/database/(.*)$': '<rootDir>/../../packages/database/$1',
   },
 };
 
-export default createJestConfig(config);
+module.exports = createJestConfig(config);
