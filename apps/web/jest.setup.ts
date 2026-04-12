@@ -1,7 +1,10 @@
 // apps/web/jest.setup.ts
 
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
 
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder as any;
 // 1. If Response is completely missing in JSDOM, mock the whole class
 if (typeof global.Response === 'undefined') {
   global.Response = class MockResponse {
