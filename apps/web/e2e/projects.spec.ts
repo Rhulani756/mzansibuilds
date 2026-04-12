@@ -108,7 +108,7 @@ test.describe('Authenticated Project Flows', () => {
     
     // Check browser-native validation
     const titleInput = page.getByLabel(/Project Name/i);
-    const isValid = await titleInput.evaluate((node: HTMLInputElement) => node.checkValidity());
+    const isValid = await titleInput.evaluate((node) => (node as HTMLInputElement).checkValidity());
     
     expect(isValid).toBe(false);
   });

@@ -28,6 +28,9 @@ const config = {
     '!<rootDir>/coverage/**',
   ],
   coverageDirectory: 'coverage',
+  transform: {
+    '^.+\\.(t|j)sx?$': ['babel-jest', { presets: ['next/babel'] }],
+  },
 
   moduleNameMapper: {
     // Standard Next.js alias
