@@ -40,8 +40,8 @@ Security is baked into the platform from the database layer up to the edge netwo
 A rigorous testing pyramid guarantees that core features (like authentication and project creation) remain stable as the platform scales. (To see more info: **<a href="https://github.com/Rhulani756/mzansibuilds/tree/main/docs" target="_blank" rel="noopener noreferrer">View testing documentation</a>**)
 
 - **Unit Testing (Jest):** Validates isolated utility functions, custom hooks, and complex UI state logic.
-- **Integration Testing:** Tests the "handshake" between Next.js Server Actions and the Dockerized Postgres database to ensure data integrity during mutations.
 - **End-to-End Testing (Playwright):** Simulates real user journeys in a headless Chromium browser, verifying critical paths such as user onboarding, logging in, and publishing a project to the Celebration Wall.
+- **Regression Testing (CI/CD)** Confirms that recent changed are compatible with historic ones and updates do not break existing production code
 
 ---
 
