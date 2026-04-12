@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // apps/web/jest.setup.ts
 
 import '@testing-library/jest-dom';
