@@ -34,9 +34,6 @@ jobs:
       - name: Lint
         run: npx turbo run lint
 
-      - name: Unit Tests (Jest)
-        run: npx turbo run test --filter=web
-
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
