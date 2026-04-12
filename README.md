@@ -4,7 +4,9 @@
 
 **A modern web platform built to connect, collaborate, and celebrate builders. Share your progress, showcase your projects on the Live Feed, and build in public.**
 
-[🌐 Live Website](https://mzansibuilds-web-git.vercel.app/) • [🐛 Report Bug](https://github.com/Rhulani756/mzansibuilds/issues) • [📖  Documentation](https://github.com/Rhulani756/mzansibuilds/issues)
+<a href="https://mzansibuilds-web-git.vercel.app/" target="_blank" rel="noopener noreferrer">🌐 Live Website</a> • 
+<a href="https://github.com/Rhulani756/mzansibuilds/issues" target="_blank" rel="noopener noreferrer">🐛 Report Bug</a> • 
+<a href="https://github.com/Rhulani756/mzansibuilds/tree/main/docs" target="_blank" rel="noopener noreferrer">📖 Documentation</a>
 
 </div>
 
@@ -35,18 +37,17 @@ Security is baked into the platform from the database layer up to the edge netwo
 
 ## 🧪 Testing Strategy
 
-A rigorous testing pyramid guarantees that core features (like authentication and project creation) remain stable as the platform scales. (To see more info: **[View testing documentation](https://github.com/Rhulani756/mzansibuilds/tree/main/docs)**)
+A rigorous testing pyramid guarantees that core features (like authentication and project creation) remain stable as the platform scales. (To see more info: **<a href="https://github.com/Rhulani756/mzansibuilds/tree/main/docs" target="_blank" rel="noopener noreferrer">View testing documentation</a>**)
 
 - **Unit Testing (Jest):** Validates isolated utility functions, custom hooks, and complex UI state logic.
 - **Integration Testing:** Tests the "handshake" between Next.js Server Actions and the Dockerized Postgres database to ensure data integrity during mutations.
 - **End-to-End Testing (Playwright):** Simulates real user journeys in a headless Chromium browser, verifying critical paths such as user onboarding, logging in, and publishing a project to the Celebration Wall.
 
-
 ---
 
 ## ⚙️ Automation & CI/CD Pipeline
 
-**[View GitHub Actions](https://github.com/Rhulani756/mzansibuilds/actions)**
+**<a href="https://github.com/Rhulani756/mzansibuilds/actions" target="_blank" rel="noopener noreferrer">View GitHub Actions</a>**
 
 A cornerstone of this platform is its robust, automated Continuous Integration and Continuous Deployment (CI/CD) pipeline, ensuring zero breaking changes reach production.
 
@@ -62,7 +63,7 @@ A cornerstone of this platform is its robust, automated Continuous Integration a
 
 ### 🌐 Live System
 
-**Production Deployment:** [MzansiBuilds on Vercel](https://mzansibuilds-web-git.vercel.app/)
+**Production Deployment:** <a href="https://mzansibuilds-web-git.vercel.app/" target="_blank" rel="noopener noreferrer">MzansiBuilds on Vercel</a>
 
 The platform utilizes Vercel's Edge Network for global state distribution and Next.js serverless functions for optimized, low-latency rendering.
 
