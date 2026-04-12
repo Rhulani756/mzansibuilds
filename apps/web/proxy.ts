@@ -27,15 +27,18 @@ export async function proxy(request: NextRequest) {
     }
   )
 
+  // Use getUser() for secure server-side auth
   const { data: { user } } = await supabase.auth.getUser()
 
   const isAccessingDashboard = request.nextUrl.pathname.startsWith('/dashboard')
   const isAccessingLogin = request.nextUrl.pathname.startsWith('/login')
 
+  // 1. If not logged in and trying to access dashboard -> Redirect to login
   if (!user && isAccessingDashboard) {
-    return NextResponse.redirect(new URL('/', request.url))
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
+  // 2. If already logged in and trying to access login -> Redirect to dashboard
   if (user && isAccessingLogin) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
@@ -44,5 +47,6 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/api/projects/:path*', '/login'], 
+  // Added '/dashboard' to the matcher so it catches the root page, not just sub-paths
+  matcher: ['/dashboard', '/dashboard/:path*', '/api/projects/:path*', '/login'], 
 }
