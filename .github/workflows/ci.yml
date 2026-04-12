@@ -2,25 +2,51 @@ name: MzansiBuilds CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ "main" ]
-
-permissions:
-  contents: read
+    branches: [ main, develop ]
 
 jobs:
-  build:
+  test:
+    timeout-minutes: 20
     runs-on: ubuntu-latest
+
+    env:
+      # These must match the names in your GitHub Secrets
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
+          cache: 'npm'
+
       - name: Install Dependencies
         run: npm install
-      - name: Run Linters
-        run: npm run lint
-      - name: Build Project
-        run: npm run build
+
+      - name: Lint
+        run: npx turbo run lint
+
+      - name: Unit Tests (Jest)
+        run: npx turbo run test --filter=web
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: E2E Tests (Playwright)
+        run: npx turbo run test:e2e
+
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report/
+          retention-days: 30
