@@ -1,5 +1,6 @@
 import { prisma } from '@repo/database';
 import Link from 'next/link';
+export const dynamic = 'force-dynamic';
 
 export default async function CelebrationWallPage() {
   // Fetch only projects that have reached the finish line
@@ -11,6 +12,7 @@ export default async function CelebrationWallPage() {
       updatedAt: 'desc' // Show the most recently completed first
     },
     include: {
+      user: true, // 🚀 Pulls the profile data
       milestones: true,
       comments: true,
     }
@@ -56,11 +58,21 @@ export default async function CelebrationWallPage() {
                 <div className="absolute top-0 left-8 right-8 h-0.5 bg-linear-to-r from-transparent via-yellow-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <div className="flex-1">
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="flex justify-between items-start mb-2">
                     <h3 className="text-2xl font-bold text-white group-hover:text-yellow-400 transition-colors">
                       {project.title}
                     </h3>
                     <span className="text-2xl" title="Completed">🏅</span>
+                  </div>
+
+                  {/* NEW: User Identity Block (Dark/Gold Theme) */}
+                  <div className="flex items-center gap-2 mb-6">
+                    <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-white text-[10px] font-bold uppercase shadow-sm group-hover:bg-yellow-500 group-hover:text-gray-900 transition-colors">
+                      {project.user.username.charAt(0)}
+                    </div>
+                    <span className="text-xs font-bold text-gray-400 group-hover:text-gray-300 transition-colors">
+                      @{project.user.username}
+                    </span>
                   </div>
                   
                   <p className="text-gray-400 text-sm leading-relaxed mb-8 line-clamp-3">

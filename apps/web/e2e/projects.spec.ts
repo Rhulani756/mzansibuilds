@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Project Creation Flow', () => {
+test.describe('Authenticated Project Flows', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/login');
@@ -26,14 +26,17 @@ test.describe('Project Creation Flow', () => {
     const milestoneUpdate = `Milestone Achievement: Completed UI Refactor at ${Date.now()}`;
     await page.getByPlaceholder(/What did you achieve today/i).fill(milestoneUpdate);
     
-    // 4. Click the new publish button
-    await page.getByRole('button', { name: /Publish Update/i }).click();
+    // 4. Click the publish button AND wait for the server to finish processing
+    await Promise.all([
+      page.waitForResponse(response => response.request().method() === 'POST'),
+      page.getByRole('button', { name: /Publish Update/i }).click()
+    ]);
 
     // 5. Verification: Check that it appears in the "Update History" list
     await expect(page.getByText(milestoneUpdate)).toBeVisible({ timeout: 10000 });
-});
+  });
 
-test('completing a project automatically adds it to the Celebration Wall', async ({ page }) => {
+  test('completing a project automatically adds it to the Celebration Wall', async ({ page }) => {
     // 1. Create a unique test project
     const uniqueTitle = `Gold Medal Build ${Date.now()}`;
     await page.goto('/projects/new');
@@ -46,11 +49,12 @@ test('completing a project automatically adds it to the Celebration Wall', async
     await page.waitForURL('**/dashboard*');
 
     // 2. Navigate to the Command Center for THIS specific project
-    // We filter the project cards to find the one with our unique title, then click its specific link
     const projectCard = page.locator('.bg-white.rounded-xl', { hasText: uniqueTitle });
     await projectCard.getByRole('link', { name: /Manage Updates/i }).click();
 
-    await page.locator('select[name="stage"]').selectOption('COMPLETED');
+    await expect(page.getByRole('heading', { name: uniqueTitle })).toBeVisible();
+
+    await page.getByRole('combobox').selectOption('COMPLETED');
     
     // Use Promise.all to click the button AND wait for the background request to finish
     await Promise.all([
@@ -59,10 +63,6 @@ test('completing a project automatically adds it to the Celebration Wall', async
     ]);
 
     // 4. Navigate to the Celebration Wall
-    await page.goto('/wall');
-
-    // 4. Navigate to the Celebration Wall
-    // You can also use page.getByRole('link', { name: /Celebration Wall/i }).click() if you prefer clicking the nav!
     await page.goto('/wall');
 
     // 5. THE FINAL CHECK: Verify our project made it to the Hall of Fame
@@ -91,7 +91,6 @@ test('completing a project automatically adds it to the Celebration Wall', async
     expect(page.url()).toContain('Project%20Created%20Successfully');
 
     // 2. THE CRITICAL CHECK: Wait for the specific title to appear
-    // Using getByRole('heading') is much safer than locator('h3')
     const projectHeading = page.getByRole('heading', { name: uniqueTitle });
     await expect(projectHeading).toBeVisible({ timeout: 10000 });
   });
@@ -107,5 +106,38 @@ test('completing a project automatically adds it to the Celebration Wall', async
     
     expect(isValid).toBe(false);
   });
-});
 
+  test('user identity is correctly displayed when posting a comment', async ({ page }) => {
+    // 1. Setup: Ensure we have a specific, known username for this test
+    const knownUsername = `qa_ninja_${Date.now()}`;
+    await page.goto('/settings');
+    
+    // Ensure the settings page is fully loaded
+    await expect(page.getByRole('heading', { name: /Profile Settings/i })).toBeVisible();
+    
+    await page.locator('input[name="username"]').fill(knownUsername);
+    await Promise.all([
+      page.waitForResponse(response => response.request().method() === 'POST'),
+      page.getByRole('button', { name: /Save Changes/i }).click()
+    ]);
+
+    // 2. Navigate to the Live Feed and open the very first project
+    await page.goto('/feed');
+    await page.getByRole('link', { name: /View Project & Discuss/i }).first().click();
+
+    // 3. Post a new comment
+    const uniqueComment = `Code review looks great! Timestamp: ${Date.now()}`;
+    await page.getByPlaceholder(/Share your thoughts/i).fill(uniqueComment);
+    
+    await Promise.all([
+      page.waitForResponse(response => response.request().method() === 'POST'),
+      page.getByRole('button', { name: /Post Comment/i }).click()
+    ]);
+
+    // 4. Verification: Find the comment we just posted
+    const commentContainer = page.locator('div.flex-1.bg-gray-50', { hasText: uniqueComment });
+    
+    // 5. Assert that our specific username is attached to that specific comment
+    await expect(commentContainer.getByText(`@${knownUsername}`)).toBeVisible();
+  });
+});

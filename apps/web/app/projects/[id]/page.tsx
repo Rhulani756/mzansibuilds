@@ -1,8 +1,9 @@
 import { prisma } from '@repo/database';
 import { notFound } from 'next/navigation';
-import { postComment, raiseHand, addMilestone } from './actions'; // Integrated addMilestone
+import { postComment, raiseHand, addMilestone } from './actions';
 import { createClient } from '../../../utils/supabase/server';
 import Link from 'next/link';
+export const dynamic = 'force-dynamic';
 
 export default async function ProjectDetailsPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -13,11 +14,13 @@ export default async function ProjectDetailsPage(props: { params: Promise<{ id: 
   const project = await prisma.project.findUnique({
     where: { id: params.id },
     include: {
+      user: true, 
       comments: {
+        include: { user: true }, // 🚀 ADDED 'include:' HERE
         orderBy: { createdAt: 'desc' }
       },
       milestones: {
-        orderBy: { createdAt: 'desc' } // Newest progress at the top
+        orderBy: { createdAt: 'desc' } 
       },
       collabRequests: true
     }
@@ -46,18 +49,28 @@ export default async function ProjectDetailsPage(props: { params: Promise<{ id: 
                 <Link href="/feed" className="text-xs font-bold text-green-600 hover:underline mb-2 block">
                   ← Back to Feed
                 </Link>
-                <h1 className="text-3xl font-black text-gray-900">{project.title}</h1>
+                <h1 className="text-3xl font-black text-gray-900 mb-3">{project.title}</h1>
+                
+                {/* NEW: Project Owner Info */}
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-gray-900 flex items-center justify-center text-white text-[10px] font-bold uppercase">
+                    {project.user.username.charAt(0)}
+                  </div>
+                  <span className="text-sm font-bold text-gray-600">
+                    @{project.user.username}
+                  </span>
+                </div>
               </div>
               <span className="bg-gray-100 text-gray-800 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider border border-gray-200">
                 {project.stage}
               </span>
             </div>
-            <p className="text-gray-700 text-lg leading-relaxed whitespace-pre-wrap italic opacity-90">
+            <p className="text-gray-700 text-lg leading-relaxed whitespace-pre-wrap italic opacity-90 mt-6">
               {project.description}
             </p>
           </div>
 
-          {/* 2. NEW: Progress Timeline Section */}
+          {/* 2. Progress Timeline Section */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
@@ -131,20 +144,34 @@ export default async function ProjectDetailsPage(props: { params: Promise<{ id: 
             )}
 
             <div className="space-y-6">
-              {project.comments.map(comment => (
-                <div key={comment.id} className="flex gap-4">
-                  <div className="w-10 h-10 bg-linear-to-br from-green-400 to-blue-500 rounded-full shrink-0 shadow-sm" />
-                  <div className="flex-1 bg-gray-50 p-4 rounded-xl rounded-tl-none border border-gray-100">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-bold text-sm text-gray-900">Builder</span>
-                      <span className="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">
-                        {new Date(comment.createdAt).toLocaleDateString()}
-                      </span>
+              {/* NEW: Updated Comment Map */}
+              {project.comments.map(comment => {
+                // Check if the commenter is the project owner
+                const isCreator = comment.userId === project.userId;
+
+                return (
+                  <div key={comment.id} className="flex gap-4">
+                    <div className="w-10 h-10 bg-linear-to-br from-gray-800 to-gray-900 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-sm uppercase shadow-sm">
+                      {comment.user.username.charAt(0)}
                     </div>
-                    <p className="text-gray-700 text-sm">{comment.content}</p>
+                    <div className="flex-1 bg-gray-50 p-4 rounded-xl rounded-tl-none border border-gray-100">
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-gray-900">@{comment.user.username}</span>
+                          {/* Creator Badge */}
+                          {isCreator && (
+                            <span className="bg-green-100 text-green-700 text-[9px] px-1.5 py-0.5 rounded font-black uppercase tracking-widest">Creator</span>
+                          )}
+                        </div>
+                        <span className="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">
+                          {new Date(comment.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-gray-700 text-sm">{comment.content}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
