@@ -23,9 +23,9 @@ export async function postComment(formData: FormData) {
 
   await prisma.comment.create({
     data: {
-      content: validatedData.content, // Matched to your schema!
+      content: validatedData.content,
       projectId: validatedData.projectId,
-      userId: user.id,
+      userId: user.id, // ✅ Properly linked
     }
   });
 
@@ -88,6 +88,7 @@ export async function addMilestone(formData: FormData) {
     data: {
       content,
       projectId,
+      userId: user.id, // 🚀 ADDED: This fixes the Milestone Test timeout!
     },
   });
 

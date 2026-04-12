@@ -7,15 +7,14 @@ export async function ensureUserProfile() {
 
   if (!user || !user.email) return null;
 
-  // 1. Fast Path: Check if the profile already exists by ID
+  // 1. Fast Path
   let profile = await prisma.user.findUnique({
     where: { id: user.id }
   });
 
   if (profile) return profile;
 
-  // 2. Mismatch Path: Did Supabase auth get reset but Prisma didn't?
-  // If we find the email under an old ID, we update it to the new Supabase Auth ID.
+  // 2. Mismatch Path
   profile = await prisma.user.findUnique({
     where: { email: user.email }
   });
@@ -23,12 +22,12 @@ export async function ensureUserProfile() {
   if (profile) {
     return await prisma.user.update({
       where: { email: user.email },
-      data: { id: user.id } // Heal the broken link!
+      data: { id: user.id }
     });
   }
 
-  // 3. Creation Path: Auto-generate a unique username
-  let baseUsername = user.email.split('@')[0] || 'user';
+  // 3. Creation Path
+  const baseUsername = user.email.split('@')[0] || 'user'; // 
   let uniqueUsername = baseUsername;
   let counter = 1;
 
@@ -46,16 +45,14 @@ export async function ensureUserProfile() {
         username: uniqueUsername,
       }
     });
-  } catch (error: any) {
-    // If two Next.js components tried to create this simultaneously, 
-    // the second one will hit the Unique Constraint error. 
-    // We catch it and just return the profile the first component successfully made.
-    if (error.code === 'P2002') { // Prisma's unique constraint error code
+  } catch (error: unknown) { 
+    // 🚀 Safe type checking for the Prisma error code
+    if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2002') {
       profile = await prisma.user.findUnique({
         where: { email: user.email }
       });
     } else {
-      throw error; // If it's a different database error, we still want to know!
+      throw error;
     }
   }
 

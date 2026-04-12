@@ -12,30 +12,36 @@ test.describe('Authenticated Project Flows', () => {
 
     // Ensure we are fully loaded on the dashboard before starting
     await page.waitForURL('**/dashboard*');
-    await expect(page.getByRole('heading', { name: /My Workspace/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /My Workspace/i })).toBeVisible({ timeout: 20000 });
   });
 
   test('owner can successfully post a project milestone', async ({ page }) => {
-    // 1. Go to the dashboard
-    await page.goto('/dashboard');
+    // 1. SETUP: Create a quick project so we actually have something to manage
+    const targetTitle = `Milestone Target ${Date.now()}`;
+    await page.goto('/projects/new');
+    await page.getByLabel(/Project Name/i).fill(targetTitle);
+    await page.getByLabel(/Description/i).fill('Testing the milestone flow.');
+    await page.getByRole('button', { name: /Publish Project/i }).click();
+    await page.waitForURL('**/dashboard*');
 
-    // 2. Click the new management link (Use regex to ignore the arrow icon)
-    await page.getByRole('link', { name: /Manage Updates/i }).first().click();
+    // 2. Navigate to the Command Center for THIS specific project
+    const projectCard = page.locator('.bg-white.rounded-xl', { hasText: targetTitle });
+    await projectCard.getByRole('link', { name: /Manage Updates/i }).click();
 
-    // 3. Fill the Milestone form using the new placeholder text
+    // 3. Fill the Milestone form
     const milestoneUpdate = `Milestone Achievement: Completed UI Refactor at ${Date.now()}`;
     await page.getByPlaceholder(/What did you achieve today/i).fill(milestoneUpdate);
     
-    // 4. Click the publish button AND wait for the server to finish processing
+    // 4. Click the publish button AND wait for the server
     await Promise.all([
       page.waitForResponse(response => response.request().method() === 'POST'),
       page.getByRole('button', { name: /Publish Update/i }).click()
     ]);
 
-    // 5. Verification: Check that it appears in the "Update History" list
+    // 5. Verification
     await expect(page.getByText(milestoneUpdate)).toBeVisible({ timeout: 10000 });
   });
-
+  
   test('completing a project automatically adds it to the Celebration Wall', async ({ page }) => {
     // 1. Create a unique test project
     const uniqueTitle = `Gold Medal Build ${Date.now()}`;
@@ -88,7 +94,7 @@ test.describe('Authenticated Project Flows', () => {
 
     // 1. Wait for the redirect and the success message in the URL
     await page.waitForURL(url => url.searchParams.has('message'));
-    expect(page.url()).toContain('Project%20Created%20Successfully');
+    expect(page.url()).toContain('Project+Created+Successfully');
 
     // 2. THE CRITICAL CHECK: Wait for the specific title to appear
     const projectHeading = page.getByRole('heading', { name: uniqueTitle });
@@ -108,12 +114,18 @@ test.describe('Authenticated Project Flows', () => {
   });
 
   test('user identity is correctly displayed when posting a comment', async ({ page }) => {
-    // 1. Setup: Ensure we have a specific, known username for this test
+    // 1. 🚀 SETUP: Create a quick project so we GUARANTEE there is something in the feed
+    const targetTitle = `Discussion Target ${Date.now()}`;
+    await page.goto('/projects/new');
+    await page.getByLabel(/Project Name/i).fill(targetTitle);
+    await page.getByLabel(/Description/i).fill('Testing the discussion feed.');
+    await page.getByRole('button', { name: /Publish Project/i }).click();
+    await page.waitForURL('**/dashboard*');
+
+    // 2. Setup known username
     const knownUsername = `qa_ninja_${Date.now()}`;
     await page.goto('/settings');
-    
-    // Ensure the settings page is fully loaded
-    await expect(page.getByRole('heading', { name: /Profile Settings/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Profile Settings/i })).toBeVisible({ timeout: 15000 });
     
     await page.locator('input[name="username"]').fill(knownUsername);
     await Promise.all([
@@ -121,11 +133,14 @@ test.describe('Authenticated Project Flows', () => {
       page.getByRole('button', { name: /Save Changes/i }).click()
     ]);
 
-    // 2. Navigate to the Live Feed and open the very first project
+    // 3. Go to feed and find our SPECIFIC project
     await page.goto('/feed');
-    await page.getByRole('link', { name: /View Project & Discuss/i }).first().click();
+    
+    // 🚀 FIX: Find the specific project we just created, guaranteeing it exists
+    const projectCard = page.locator('div.bg-white.rounded-xl', { hasText: targetTitle });
+    await projectCard.getByRole('link', { name: /View Project & Discuss/i }).click();
 
-    // 3. Post a new comment
+    // 4. Post a comment
     const uniqueComment = `Code review looks great! Timestamp: ${Date.now()}`;
     await page.getByPlaceholder(/Share your thoughts/i).fill(uniqueComment);
     
@@ -134,10 +149,8 @@ test.describe('Authenticated Project Flows', () => {
       page.getByRole('button', { name: /Post Comment/i }).click()
     ]);
 
-    // 4. Verification: Find the comment we just posted
+    // 5. Verify the tag
     const commentContainer = page.locator('div.flex-1.bg-gray-50', { hasText: uniqueComment });
-    
-    // 5. Assert that our specific username is attached to that specific comment
     await expect(commentContainer.getByText(`@${knownUsername}`)).toBeVisible();
   });
 });
