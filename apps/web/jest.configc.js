@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-env node */
-const nextJest = require('next/jest');
+import nextJest from 'next/jest';
 
 /** @type {import('jest').Config} */
 const createJestConfig = nextJest({
@@ -38,4 +37,4 @@ const config = {
   },
 };
 
-module.exports = createJestConfig(config);
+export default createJestConfig(config);
