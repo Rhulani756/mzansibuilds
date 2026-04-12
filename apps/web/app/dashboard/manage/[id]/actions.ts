@@ -22,13 +22,31 @@ async function verifyOwnership(projectId: string) {
 }
 
 export async function addManagementMilestone(formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Unauthorized");
+
   const projectId = formData.get('projectId') as string;
   const content = formData.get('content') as string;
 
-  await verifyOwnership(projectId);
+  // 1. Security check (Optional but recommended)
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { userId: true }
+  });
 
+  if (!project || project.userId !== user.id) {
+    throw new Error("Unauthorized: You do not own this project.");
+  }
+
+  // 2. The Actual Fix: Inject the userId
   await prisma.milestone.create({
-    data: { content, projectId },
+    data: {
+      content,
+      projectId,
+      userId: user.id, // 🚀 THIS IS THE MISSING KEY
+    },
   });
 
   revalidatePath(`/dashboard/manage/${projectId}`);
