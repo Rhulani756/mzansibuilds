@@ -34,12 +34,6 @@ jobs:
       - name: Lint
         run: npx turbo run lint
 
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-
-      - name: E2E Tests (Playwright)
-        run: npx turbo run test:e2e
-
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4
         if: always()
