@@ -41,7 +41,7 @@ A rigorous testing pyramid guarantees that core features (like authentication an
 
 - **Unit Testing (Jest):** Validates isolated utility functions, custom hooks, and complex UI state logic.
 - **End-to-End Testing (Playwright):** Simulates real user journeys in a headless Chromium browser, verifying critical paths such as user onboarding, logging in, and publishing a project to the Celebration Wall.
-- **Regression Testing (CI/CD)** Confirms that recent changed are compatible with historic ones and updates do not break existing production code
+- **Regression Testing (** Confirms that recent changes are compatible with historic ones and updates do not break existing production code
 
 ---
 
