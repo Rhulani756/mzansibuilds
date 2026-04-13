@@ -3,7 +3,6 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '../../utils/supabase/server'
-import { getURL } from 'next/dist/shared/lib/utils'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -47,10 +46,14 @@ export async function signup(formData: FormData) {
 export async function signInWithGoogle() {
   const supabase = await createClient()
   
+  const siteUrl = process.env.NEXT_PUBLIC_VERCEL_URL 
+    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` 
+    : 'http://localhost:3000'
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${getURL()}auth/callback`,
+      redirectTo: `${siteUrl}/auth/callback`,
     },
   })
 
@@ -59,7 +62,7 @@ export async function signInWithGoogle() {
   }
 
   if (data.url) {
-    redirect(data.url)
+    redirect(data.url) 
   }
 }
 
