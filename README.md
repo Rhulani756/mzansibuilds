@@ -24,6 +24,26 @@ MzansiBuilds is engineered as a highly scalable **Turborepo** monorepo, separati
 
 ---
 
+## 📂 Repository Structure
+
+The project utilizes a monorepo architecture to share code, types, and configurations efficiently across different workspaces while maintaining strict boundaries.
+
+```text
+mzansibuilds/
+├── .github/
+│   └── workflows/         # Automated CI/CD pipelines (GitHub Actions)
+├── apps/
+│   └── web/               # Main Next.js application (App Router, UI, API routes)
+├── packages/
+│   ├── database/          # Prisma schema, migrations, and exported Prisma Client
+│   ├── ui/                # Shared React components (Tailwind, Framer Motion)
+│   ├── eslint-config/     # Centralized ESLint configuration for the monorepo
+│   └── typescript-config/ # Centralized tsconfig base for strict typing
+├── docs/                  # Project documentation and testing strategy assets
+└── turbo.json             # Turborepo pipeline and build caching configuration
+
+```
+
 ## 🛡️ Security Architecture
 
 Security is baked into the platform from the database layer up to the edge network, ensuring user data and project integrity are strictly protected.
