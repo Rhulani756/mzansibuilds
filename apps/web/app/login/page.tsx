@@ -1,14 +1,30 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { login, signup, signInWithGoogle } from './actions';
+import { login, signup } from './actions';
 import { use } from 'react';
+// Import the client-side Supabase utility
+import { createClient } from '../../utils/supabase/client'; 
 
 export default function LoginPage(props: {
   searchParams: Promise<{ message: string }>
 }) {
-  // Using the 'use' hook is the modern way to handle async searchParams in Client Components
   const searchParams = use(props.searchParams);
+
+  // Client-side Google Login handler
+  const handleGoogleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); // Prevent standard form submission
+    
+    const supabase = createClient();
+    
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        // This guarantees the exact right URL is sent to Supabase
+        redirectTo: `${window.location.origin}/auth/callback`, 
+      },
+    });
+  };
 
   return (
     <div className="relative min-h-[calc(100vh-96px)] flex items-center justify-center p-6 overflow-hidden bg-white">
@@ -74,14 +90,12 @@ export default function LoginPage(props: {
             <div className="flex flex-col gap-3 pt-2">
               <button
                 formAction={login}
-                // ADDED: cursor-pointer
                 className="w-full bg-gray-900 text-white p-3 rounded-lg font-bold hover:bg-gray-800 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-gray-900/10 cursor-pointer"
               >
                 Log In
               </button>
               <button
                 formAction={signup}
-                // ADDED: cursor-pointer
                 className="w-full bg-white text-gray-900 border-2 border-gray-900 p-3 rounded-lg font-bold hover:bg-gray-50 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
               >
                 Sign Up
@@ -100,9 +114,8 @@ export default function LoginPage(props: {
 
             {/* Google OAuth Button */}
             <button
-              formAction={signInWithGoogle}
-              formNoValidate
-              // ADDED: cursor-pointer
+              onClick={handleGoogleLogin}
+              type="button"
               className="w-full flex items-center justify-center gap-3 bg-white text-gray-700 border border-gray-300 p-3 rounded-lg font-bold hover:bg-gray-50 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-sm cursor-pointer"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
